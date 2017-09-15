@@ -11,7 +11,6 @@ for (let symbol in wallet) {
 }
 cc.price('USD', 'BTC')
 .then(btcPrice => {
-    console.log(btcPrice);
     cc.priceMulti(symbols, ['USD'])
     .then(prices => {
         for (let symbol in prices) {

@@ -139,7 +139,7 @@
                     .attr("width", function(d) { 
                         return d.type == "Loss" ? x(0)-x(d.x0) : (x(d.x1)-x(d.x0));
                     })
-                    .style("opacity", "0.3")
+                    .style("opacity", "0.2")
                     .style("fill", function(d) { return color(d.type); });
 
                 bars.append("text")
@@ -158,7 +158,7 @@
                     .attr("height", y.rangeBand()+2)
                     .attr("x", "1")
                     .attr("width", width)
-                    .attr("fill-opacity", "0.5")
+                    .attr("fill-opacity", "0.4")
                     .style("fill", "#F5F5F5")
                     .attr("class", function(d,index) { return index%2==0 ? "even" : "uneven"; });
 
@@ -209,7 +209,7 @@
                     .attr("y", -60)
                     .attr("text-anchor", "middle")
                     .style("font", "20px sans-serif")
-                    .text("Week 3 " + (comparison == 'percent' ? 'percent ' : '') + "gain/loss " + (currency == 'BTC' ? 'vs. BTC in USD' : 'in USD'));
+                    .text("Week 4 (Sept. 3rd - Sept. 10th, 2017) " + (comparison == 'percent' ? 'percent ' : '') + "gain/loss " + (currency == 'BTC' ? 'vs. BTC in USD' : 'in USD'));
                 
                 var movesize = width/2 - startp.node().getBBox().width/2;
                 d3.selectAll(".legendbox").attr("transform", "translate(" + movesize  + ",0)");
