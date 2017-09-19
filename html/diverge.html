@@ -2,7 +2,6 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Diverging Stacked Bar Chart with D3.js - Weekly Gain/Loss</title>
 <style>
     body {
         font: 10px sans-serif;
@@ -53,9 +52,9 @@
 
         color.domain(["Gain", "Loss"]);
         //load data
-        let fromDate = getUrlParameter('fromDate');
-        let toDate = getUrlParameter('toDate');
-        d3.json('../data/raw/'+fromDate+'.json', function (originalError, originalData) {
+        let fromDate = getUrlParameter('fromDate').replace(/-/g, '');
+        let toDate = getUrlParameter('toDate').replace(/-/g, '');
+         d3.json('../data/raw/'+fromDate+'.json', function (originalError, originalData) {
             if (originalError) throw originalError;
             d3.json('../data/raw/'+toDate+'.json', function (error, data) {
                 if (error) throw error;
@@ -195,13 +194,15 @@
                 d3.selectAll(".axis path")
                     .style("fill", "none")
                     .style("stroke", "#000")
-                    .style("shape-rendering", "crispEdges")
+                    .style("shape-rendering", "crispEdges");
 
                 d3.selectAll(".axis line")
                     .style("fill", "none")
                     .style("stroke", "#000")
-                    .style("shape-rendering", "crispEdges")
-                
+                    .style("shape-rendering", "crispEdges");
+                let titleFromDate = new Date(getUrlParameter('fromDate')).toISOString().substring(0, 10);
+                let titleToDate = new Date(getUrlParameter('toDate')).toISOString().substring(0, 10);
+                let weekNum = getUrlParameter('weekNum');
                 let title = svg.append("g")
                     .attr("class", "title");
                 title.append("text")
@@ -209,7 +210,7 @@
                     .attr("y", -60)
                     .attr("text-anchor", "middle")
                     .style("font", "20px sans-serif")
-                    .text("Week 4 (Sept. 3rd - Sept. 10th, 2017) " + (comparison == 'percent' ? 'percent ' : '') + "gain/loss " + (currency == 'BTC' ? 'vs. BTC in USD' : 'in USD'));
+                    .text("Week " + weekNum + " (" + titleFromDate + " to " + titleToDate + ") " + (comparison == 'percent' ? 'percent ' : '') + "gain/loss " + (currency == 'BTC' ? 'vs. BTC in USD' : 'in USD'));
                 
                 var movesize = width/2 - startp.node().getBBox().width/2;
                 d3.selectAll(".legendbox").attr("transform", "translate(" + movesize  + ",0)");

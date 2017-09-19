@@ -64,8 +64,7 @@ var svg = d3.select("body")
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-
-let curDate = getUrlParameter('date');
+let curDate = getUrlParameter('date').replace(/-/g, '');
 d3.json('..//data/currencies/' + curDate + '-currencies.json', function (error, data) {
     data.forEach(function(d) {
         d.date = new Date(d.date);
@@ -130,12 +129,14 @@ d3.json('..//data/currencies/' + curDate + '-currencies.json', function (error, 
 
     //define chart title to svg
     let title = svg.append("g").attr("class", "title");
+    let titleDate = new Date(getUrlParameter('date')).toISOString().substring(0, 10);
+    let weekNum = getUrlParameter('weekNum');
     title.append("text")
         .attr("x", (width/2))
         .attr("y", -40)
         .attr("text-anchor", "middle")
         .style("font", "20px sans-serif")
-        .text("Cryptocurrency Balances Week 4 (Sept. 10, 2017)");
+        .text("Cryptocurrency Balances Week " + weekNum + " (" + titleDate + ")");
 
 
 });
