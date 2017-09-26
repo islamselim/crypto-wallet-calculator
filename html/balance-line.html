@@ -1,93 +1,103 @@
-<!DOCTYPE html>
-<!--
-Author: Brett McLain
-Usage: *.html?week=X where X is the week 
-
--->
-<svg width="960" height="500"></svg>
+<html>
+<head>
 <script src="https://d3js.org/d3.v4.min.js"></script>
-<script>
-
-var svg = d3.select("svg"),
-    margin = {top: 50, right: 20, bottom: 30, left: 50},
-    width = +svg.attr("width") - margin.left - margin.right,
-    height = +svg.attr("height") - margin.top - margin.bottom,
-    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-var parseTime = d3.timeParse("%d-%b-%y");
-
-var x = d3.scaleTime()
-    .rangeRound([0, width]);
-
-var y = d3.scaleLinear()
-    .rangeRound([height, 0]);
-
-var line = d3.line()
-    .x(function(d) { return x(new Date(d.date)); })
-    .y(function(d) { return y(d.balance); });
-
-let curDate = getUrlParameter('date').replace(/-/g, '');
-d3.json("../data/balances/" + curDate + "-balance.json", function(error, data) {
-    if (error) throw error;
-
-    x.domain(d3.extent(data, function(d) { 
-        return new Date(d.date); 
-    }));
-    y.domain(d3.extent(data, function(d) { 
-        return d.balance; 
-    }));
-
-    g.append("g")
-        .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x).ticks(10))
-        .select(".domain");
-
-    g.append("g")
-        .call(d3.axisLeft(y))
-        .append("text")
-        .attr("fill", "#000")
-        .attr("transform", "rotate(-90)")
-        .attr("y", 6)
-        .attr("dy", "0.99em")
-        .attr("text-anchor", "end")
-        .text("Balance ($ USD)");
-
-    g.append("path")
-        .datum(data)
-        .attr("fill", "none")
-        .attr("stroke", "steelblue")
-        .attr("stroke-linejoin", "round")
-        .attr("stroke-linecap", "round")
-        .attr("stroke-width", 1.5)
-        .attr("d", line);
-
-    let titleDate = new Date(getUrlParameter('date')).toISOString().substring(0, 10);
-    let weekNum = getUrlParameter('weekNum');
-    let title = svg.append("g").attr("class", "title");
-    title.append("text")
-        .attr("x", (width/2))
-        .attr("y", 25)
-        .attr("text-anchor", "middle")
-        .style("font", "20px sans-serif")
-        .text("Portfolio Balance Week " + weekNum + " (" + titleDate + ")");
-
-
-});
-
-function getUrlParameter(sParam) {
-    var sPageURL = decodeURIComponent(window.location.search.substring(1)),
-        sURLVariables = sPageURL.split('&'),
-        sParameterName,
-        i;
-
-    for (i = 0; i < sURLVariables.length; i++) {
-        sParameterName = sURLVariables[i].split('=');
-
-        if (sParameterName[0] === sParam) {
-            return sParameterName[1] === undefined ? true : sParameterName[1];
-        }
+<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+<style>
+    body {
+        font: bold 14px 'Open Sans';
     }
-}
-</script>
+</style>
+
+</head>
+<body>
+    <div id="pageStatus" style="display: none;">not loaded</div>
+    <svg width="960" height="600"></svg>
+    <script type="text/javascript">
+        var svg = d3.select("svg"),
+            margin = {top: 50, right: 40, bottom: 30, left: 50},
+            width = +svg.attr("width") - margin.left - margin.right,
+            height = +svg.attr("height") - margin.top - margin.bottom,
+            g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        var parseTime = d3.timeParse("%d-%b-%y");
+
+        var x = d3.scaleTime()
+            .rangeRound([0, width]);
+
+        var y = d3.scaleLinear()
+            .rangeRound([height, 0]);
+
+        var line = d3.line()
+            .x(function(d) { return x(new Date(d.date)); })
+            .y(function(d) { return y(d.balance); });
+
+        var curDate = getUrlParameter('date').replace(/-/g, '');
+        d3.json("../data/balances/" + curDate + "-balance.json", function(error, data) {
+            if (error) throw error;
+
+            x.domain(d3.extent(data, function(d) { 
+                return new Date(d.date); 
+            }));
+            y.domain(d3.extent(data, function(d) { 
+                return d.balance; 
+            }));
+
+            g.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x).ticks(9))
+                .style("font", "bold 14px Open Sans")
+                .select(".domain");
+            var yAxis = d3.axisLeft(y);
+            yAxis.tickFormat(function(d) {
+                return "$" + d;
+            });
+            g.append("g")
+                .style("font", "bold 14px Open Sans")
+                .call(yAxis)
+                .append("text")
+                .attr("fill", "#000")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 12)
+                .attr("dy", "0.99em")
+                .attr("text-anchor", "end")
+                .text("Balance ($ USD)");
+
+            g.append("path")
+                .datum(data)
+                .attr("fill", "none")
+                .attr("stroke", "steelblue")
+                .attr("stroke-linejoin", "round")
+                .attr("stroke-linecap", "round")
+                .attr("stroke-width", 2)
+                .style("font", "bold 14px 'Open Sans'")
+                .attr("d", line);
+
+            var titleDate = new Date(getUrlParameter('date')).toISOString().substring(0, 10);
+            var weekNum = getUrlParameter('weekNum');
+            var title = svg.append("g").attr("class", "title");
+            title.append("text")
+                .attr("x", (width/2))
+                .attr("y", 25)
+                .attr("text-anchor", "middle")
+                .style("font", "bold 20px Open Sans")
+                .text("Portfolio Balance Week " + weekNum + " (" + titleDate + ")");
+            document.getElementById('pageStatus').innerHTML = "loaded";
+        });
+
+        function getUrlParameter(sParam) {
+            var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                sURLVariables = sPageURL.split('&'),
+                sParameterName,
+                i;
+
+            for (i = 0; i < sURLVariables.length; i++) {
+                sParameterName = sURLVariables[i].split('=');
+
+                if (sParameterName[0] === sParam) {
+                    return sParameterName[1] === undefined ? true : sParameterName[1];
+                }
+            }
+        }
+    </script>
 </body>
 </html>

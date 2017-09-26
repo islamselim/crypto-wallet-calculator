@@ -2,12 +2,12 @@
 <html>
 <head>
     <meta charset="utf-8">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.6.0/d3.js"></script>
     <style>
         body {
-          font: 10px sans-serif;
+            font: bold 14px 'Open Sans';
         }
-
         .axis path,
         .axis line {
           fill: none;
@@ -17,105 +17,97 @@
     </style>
 </head>
 <body>
+    <div id="pageStatus" style="display: none;">not loaded</div>
     <svg width="800" height="800"></svg>
     <script>
-    //define chart margins
-    let svg = d3.select("svg"),
-        margin = {top: 50, right: 50, bottom: 40, left: 170},
-        width = svg.attr("width") - margin.left - margin.right,
-        height = svg.attr("height") - margin.top - margin.bottom,
-        g = svg.append("g").attr("transform", "translate(" + margin.left + "," +margin.top + ")");
+        //define chart margins
+        var svg = d3.select("svg"),
+            margin = {top: 50, right: 50, bottom: 40, left: 170},
+            width = svg.attr("width") - margin.left - margin.right,
+            height = svg.attr("height") - margin.top - margin.bottom,
+            g = svg.append("g").attr("transform", "translate(" + margin.left + "," +margin.top + ")");
 
-    //define scales
-    let	x = d3.scaleLinear().rangeRound([0, width]),
-        y = d3.scaleBand().rangeRound([height, 0]).padding(0.2);
+        //define scales
+        var	x = d3.scaleLinear().rangeRound([0, width]),
+            y = d3.scaleBand().rangeRound([height, 0]).padding(0.2);
 
-    //load data
-    let yyyyMMDD = getUrlParameter('date').replace(/-/g, "");
-    d3.json('../data/raw/'+yyyyMMDD+'.json', function (error, data) {
-        if(error) throw error;
-        //sort data
-        data.sort(function(a,b) { 
-            return a.position - b.position; 
-        });
-        //define domains based on data
-        x.domain([0, data[data.length-1].position]);
-        y.domain(data.map(function(d) { return d.name + ' - ' + d.symbol; }));
-        //append x axis to svg
-        g.append("g")
-            .attr("class", "x-axis")
-            .attr("transform", "translate(0," + height + ")")
-            .call(d3.axisBottom(x))
-            .append("text")
-            .attr("y", 30)
-            .attr("x", 300)
-            .attr("dy", "0.5em")
-            .style("fill", "black")
-            .style("font", "14px monospace")
-            .text("$ Position in USD");
-
-        g.append("g")
-            .attr("class", "y axis garb")
-            .append("line")
-            .attr("x1", x(10))
-            .attr("x2", x(10))
-            .attr("y2", height);
-
-        //append y axis to svg
-        g.append("g")
-            .attr("class", "y-axis")
-            .style("font", "14px arial")
-            .call(d3.axisLeft(y));
-
-        //append rects to svg based on data
-        g.selectAll(".bar")
-            .data(data)
-            .enter()
-            .append("rect")
-            .attr("class", "bar")
-            .attr("x", 0)
-            .attr("y", function(d) { return y(d.name + ' - ' + d.symbol); })
-            .attr("height", y.bandwidth())
-            .attr("width", function(d) { return x(d.position); })
-            .style("fill", function(d, i) {
-                return (d.position < 10 ? "red" : "green");
+        //load data
+        var yyyyMMDD = getUrlParameter('date').replace(/-/g, "");
+        d3.json('../data/raw/'+yyyyMMDD+'.json', function (error, data) {
+            if(error) throw error;
+            //sort data
+            data.sort(function(a,b) { 
+                return a.position - b.position; 
             });
-    });
+            //define domains based on data
+            x.domain([0, data[data.length-1].position]);
+            y.domain(data.map(function(d) { return d.name + ' - ' + d.symbol; }));
+            //append x axis to svg
+            g.append("g")
+                .attr("class", "x-axis")
+                .attr("transform", "translate(0," + height + ")")
+                .style("font", "bold 14px Open Sans")
+                .call(d3.axisBottom(x))
+                .append("text")
+                .attr("y", 30)
+                .attr("x", 300)
+                .attr("dy", "0.5em")
+                .style("fill", "black")
+                .text("$ Position in USD");
 
-    //define chart title to svg
-    let titleDate = new Date(getUrlParameter('date')).toISOString().substring(0, 10);
-    let weekNum = getUrlParameter('weekNum');
-    let title = svg.append("g").attr("class", "title");
-    title.append("text")
-        .attr("x", (width/1.3))
-        .attr("y", 40)
-        .attr("text-anchor", "middle")
-        .style("font", "20px sans-serif")
-        .text("Cryptocurrency Positions Week " + weekNum + " (" + titleDate + ")");
+            g.append("g")
+                .attr("class", "y axis garb")
+                .append("line")
+                .attr("x1", x(10))
+                .attr("x2", x(10))
+                .attr("y2", height);
 
-    //append source data to svg
-    let source = svg.append("g").attr("class", "source");
-    source.append("text")
-        .attr("x", 10)
-        .attr("y", 800)
-        .attr("text-anchor", "left")
-        .style("font", "14px monospace")
-        .text("Source: CryptoCompare API");
+            //append y axis to svg
+            g.append("g")
+                .attr("class", "y-axis")
+                .style("font", "bold 14px Open Sans")
+                .call(d3.axisLeft(y));
 
-    function getUrlParameter(sParam) {
-        var sPageURL = decodeURIComponent(window.location.search.substring(1)),
-            sURLVariables = sPageURL.split('&'),
-            sParameterName,
-            i;
-    
-        for (i = 0; i < sURLVariables.length; i++) {
-            sParameterName = sURLVariables[i].split('=');
-    
-            if (sParameterName[0] === sParam) {
-                return sParameterName[1] === undefined ? true : sParameterName[1];
+            //append rects to svg based on data
+            g.selectAll(".bar")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("class", "bar")
+                .attr("x", 0)
+                .style("font", "bold 14px Open Sans")
+                .attr("y", function(d) { return y(d.name + ' - ' + d.symbol); })
+                .attr("height", y.bandwidth())
+                .attr("width", function(d) { return x(d.position); })
+                .style("fill", function(d, i) {
+                    return (d.position < 10 ? "red" : "green");
+                });
+        });
+        //define chart title to svg
+        var titleDate = new Date(getUrlParameter('date')).toISOString().substring(0, 10);
+        var weekNum = getUrlParameter('weekNum');
+        var title = svg.append("g").attr("class", "title");
+        title.append("text")
+            .attr("x", (width/1.3))
+            .attr("y", 40)
+            .attr("text-anchor", "middle")
+            .style("font", "bold 20px Open Sans")
+            .text("Cryptocurrency Positions Week " + weekNum + " (" + titleDate + ")");
+        document.getElementById('pageStatus').innerHTML = "loaded";
+        function getUrlParameter(sParam) {
+            var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                sURLVariables = sPageURL.split('&'),
+                sParameterName,
+                i;
+        
+            for (i = 0; i < sURLVariables.length; i++) {
+                sParameterName = sURLVariables[i].split('=');
+        
+                if (sParameterName[0] === sParam) {
+                    return sParameterName[1] === undefined ? true : sParameterName[1];
+                }
             }
         }
-    }
     </script>
 </body>
 </html>

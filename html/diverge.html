@@ -2,9 +2,10 @@
 <html>
 <head>
 <meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
 <style>
     body {
-        font: 10px sans-serif;
+        font: bold 14px 'Open Sans';
     }
     .axis path,
     .axis line {
@@ -14,223 +15,243 @@
     }
 </style>
 <script src="http://cdnjs.cloudflare.com/ajax/libs/d3/3.4.13/d3.min.js"></script>
+</head>
 <body>
-<div id="figure" style="margin-bottom: 50px;"></div>
-<script>
-    draw("USD", "");
-    draw("USD", "percent");
-    draw("BTC", "");
-    draw("BTC", "percent");
-    function draw(currency, comparison) {
-        var margin = {top: 90, right: 20, bottom: 10, left: 100},
-            width = 800 - margin.left - margin.right,
-            height = 600 - margin.top - margin.bottom;
+    <div id="pageStatus" style="display: none;">not loaded</div>
+    <div id="figure" style="margin-bottom: 50px;"></div>
+    <script>
+        var type = getUrlParameter('type');
+        if (type == "u") {
+            draw("USD", "");
+        } else if (type == "up") {
+            draw("USD", "percent");
+        } else if (type == "b") {
+            draw("BTC", "");
+        } else if (type == "bp") {
+            draw("BTC", "percent");
+        } else {
+            draw("USD", "");
+            draw("USD", "percent");
+            draw("BTC", "");
+            draw("BTC", "percent");
+        }
+        function draw(currency, comparison) {
+            var margin = {top: 90, right: 20, bottom: 10, left: 135},
+                width = 900 - margin.left - margin.right,
+                height = 800 - margin.top - margin.bottom;
 
-        var y = d3.scale.ordinal()
-            .rangeRoundBands([0, height], .3);
+            var y = d3.scale.ordinal()
+                .rangeRoundBands([0, height], .3);
 
-        var x = d3.scale.linear()
-            .rangeRound([0, width]);
+            var x = d3.scale.linear()
+                .rangeRound([0, width]);
 
-        var color = d3.scale.ordinal()
-            .range(["#109618", "#dc3912"]);
-        
-        var xAxis = d3.svg.axis()
-            .scale(x)
-            .orient("top");
+            var color = d3.scale.ordinal()
+                .range(["#109618", "#dc3912"]);
+            
+            var xAxis = d3.svg.axis()
+                .scale(x)
+                .orient("top");
 
-        var yAxis = d3.svg.axis()
-            .scale(y)
-            .orient("left")
+            var yAxis = d3.svg.axis()
+                .scale(y)
+                .orient("left")
 
-        var svg = d3.select("#figure").append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .attr("id", "d3-plot")
-            .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            var svg = d3.select("#figure").append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .attr("id", "d3-plot")
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-        color.domain(["Gain", "Loss"]);
-        //load data
-        let fromDate = getUrlParameter('fromDate').replace(/-/g, '');
-        let toDate = getUrlParameter('toDate').replace(/-/g, '');
-         d3.json('../data/raw/'+fromDate+'.json', function (originalError, originalData) {
-            if (originalError) throw originalError;
-            d3.json('../data/raw/'+toDate+'.json', function (error, data) {
-                if (error) throw error;
-                var counter = -1;
-                data.forEach(function(d) {
-                    counter++;
-                    // calc percentages
-                    var gainLoss;
-                    if (currency == 'BTC') {
-                        var originalBTCPrice = originalData.find(x => x.symbol == 'BTC').position;
-                        var currentBTCPrice = data.find(x => x.symbol == 'BTC').position;
-                        if (comparison == 'percent') {
-                            gainLoss = ((((d.position - originalData[counter].position) - (currentBTCPrice - originalBTCPrice)) / originalData[counter].position) * 100);
+            color.domain(["Gain", "Loss"]);
+            //load data
+            var fromDate = getUrlParameter('fromDate').replace(/-/g, '');
+            var toDate = getUrlParameter('toDate').replace(/-/g, '');
+            d3.json('../data/raw/'+fromDate+'.json', function (originalError, originalData) {
+                if (originalError) throw originalError;
+                d3.json('../data/raw/'+toDate+'.json', function (error, data) {
+                    if (error) throw error;
+                    var counter = -1;
+                    data.forEach(function(d) {
+                        counter++;
+                        // calc percentages
+                        var gainLoss;
+                        if (currency == 'BTC') {
+                            var originalBTCPrice = 0;
+                            var currentBTCPrice = 0;
+                            for (var i = 0; i < originalData.length; i++) {
+                                if (originalData[i].symbol == 'BTC') {
+                                    originalBTCPrice = originalData[i].position;
+                                }
+                                if (data[i].symbol == 'BTC') {
+                                    currentBTCPrice = data[i].position;
+                                }
+                            }
+                            if (comparison == 'percent') {
+                                gainLoss = ((((d.position - originalData[counter].position) - (currentBTCPrice - originalBTCPrice)) / originalData[counter].position) * 100);
+                            } else {
+                                gainLoss = (d.position - originalData[counter].position) - (currentBTCPrice - originalBTCPrice);
+                            }
+                        } else if (currency == 'USD') {    
+                            if (comparison == 'percent') {
+                                gainLoss = ((d.position / originalData[counter].position) * 100) - 100;
+                            } else { 
+                                gainLoss = d.position - originalData[counter].position;
+                            }
+                        }
+                        var x0 = 0;
+                        var ret;
+                        if (gainLoss < 0) {
+                            ret = {
+                                type: "Loss", 
+                                x0: gainLoss+x0 //starting position of rectangle
+                            };    
                         } else {
-                    
-                            gainLoss = (d.position - originalData[counter].position) - (currentBTCPrice - originalBTCPrice);
-                            console.log(d.symbol + ' ' + gainLoss);
+                            ret = {
+                                type: "Gain", 
+                                x0: x0 //starting position of rectangle 
+                            }; 
                         }
-                    } else if (currency == 'USD') {    
-                        if (comparison == 'percent') {
-                            gainLoss = ((d.position / originalData[counter].position) * 100) - 100;
-                        } else { 
-                            gainLoss = d.position - originalData[counter].position;
-                        }
-                    }
-                    var x0 = 0;
-                    var ret;
-                    if (gainLoss < 0) {
-                        ret = {
-                            type: "Loss", 
-                            x0: gainLoss+x0 //starting position of rectangle
-                        };    
-                    } else {
-                        ret = {
-                            type: "Gain", 
-                            x0: x0 //starting position of rectangle 
-                        }; 
-                    }
-                    d.boxes = color.domain().map(function(name) {
-                        ret.x1 = Math.abs(gainLoss); //width of rectangle
-                        ret.position = parseFloat(gainLoss).toFixed(2); //value to print on bar
-                        ret.name = name; //name of bar
-                        return ret;
-                    }); 
-                });
-
-                var min_val = d3.min(data, function(d) {
-                    return d.boxes["0"].x0;
-                });
-
-                var max_val = d3.max(data, function(d) {
-                    return d.boxes["1"].x1;
-                });
-
-                x.domain([min_val, max_val]).nice();
-                y.domain(data.map(function(d) { return d.name; }));
-
-                svg.append("g")
-                    .attr("class", "x axis")
-                    .call(xAxis);
-
-                svg.append("g")
-                    .attr("class", "y axis")
-                    .call(yAxis)
-
-                var vakken = svg.selectAll(".question")
-                    .data(data)
-                    .enter().append("g")
-                    .attr("class", "bar")
-                    .attr("transform", function(d) { return "translate(0," + y(d.name) + ")"; });
-
-                var bars = vakken.selectAll("rect")
-                    .data(function(d) { 
-                        return d.boxes; 
-                    })
-                    .enter().append("g").attr("class", "subbar");
-
-                bars.append("rect")
-                    .attr("height", y.rangeBand()+2)
-                    .attr("x", function(d) { return x(d.x0); })
-                    .attr("width", function(d) { 
-                        return d.type == "Loss" ? x(0)-x(d.x0) : (x(d.x1)-x(d.x0));
-                    })
-                    .style("opacity", "0.2")
-                    .style("fill", function(d) { return color(d.type); });
-
-                bars.append("text")
-                    .attr("x", function(d) { return x(d.x0); })
-                    .attr("y", y.rangeBand()/2)
-                    .attr("dy", "0.5em")
-                    .attr("dx", "0.5em")
-                    .style("font" ,"10px sans-serif")
-                    .style("fill", "#000")
-                    .style("text-anchor", "begin")
-                    .text(function(d) { 
-                        return (d.position + (comparison == 'percent' ? ' %' : '')); 
+                        d.boxes = color.domain().map(function(name) {
+                            ret.x1 = Math.abs(gainLoss); //width of rectangle
+                            ret.position = parseFloat(gainLoss).toFixed(2); //value to print on bar
+                            ret.name = name; //name of bar
+                            return ret;
+                        }); 
                     });
 
-                vakken.insert("rect",":first-child")
-                    .attr("height", y.rangeBand()+2)
-                    .attr("x", "1")
-                    .attr("width", width)
-                    .attr("fill-opacity", "0.4")
-                    .style("fill", "#F5F5F5")
-                    .attr("class", function(d,index) { return index%2==0 ? "even" : "uneven"; });
+                    var min_val = d3.min(data, function(d) {
+                        return d.boxes["0"].x0;
+                    });
 
-                svg.append("g")
-                    .attr("class", "y axis")
-                    .append("line")
-                    .attr("x1", x(0))
-                    .attr("x2", x(0))
-                    .attr("y2", height);
+                    var max_val = d3.max(data, function(d) {
+                        return d.boxes["1"].x1;
+                    });
 
-                var startp = svg.append("g").attr("class", "legendbox").attr("id", "mylegendbox");
-                // this is not nice, we should calculate the bounding box and use that
-                var legend_tabs = [0, 120, 200, 375, 450];
-                var legend = startp.selectAll(".legend")
-                    .data(color.domain().slice())
-                    .enter().append("g")
-                    .attr("class", "legend")
-                    .attr("transform", function(d, i) { return "translate(" + legend_tabs[i] + ",-45)"; });
+                    x.domain([min_val, max_val]).nice();
+                    y.domain(data.map(function(d) { return d.name; }));
 
-                legend.append("rect")
-                    .attr("x", 0)
-                    .attr("width", 18)
-                    .attr("height", 18)
-                    .style("fill", color);
+                    svg.append("g")
+                        .attr("class", "x axis")
+                        .call(xAxis);
 
-                legend.append("text")
-                    .attr("x", 22)
-                    .attr("y", 9)
-                    .attr("dy", ".35em")
-                    .style("text-anchor", "begin")
-                    .style("font" ,"10px sans-serif")
-                    .text(function(d) { return (comparison == 'percent' ? '% ' : "USD ") + d; });
+                    svg.append("g")
+                        .attr("class", "y axis")
+                        .call(yAxis)
 
-                d3.selectAll(".axis path")
-                    .style("fill", "none")
-                    .style("stroke", "#000")
-                    .style("shape-rendering", "crispEdges");
+                    var vakken = svg.selectAll(".question")
+                        .data(data)
+                        .enter().append("g")
+                        .attr("class", "bar")
+                        .attr("transform", function(d) { return "translate(0," + y(d.name) + ")"; });
 
-                d3.selectAll(".axis line")
-                    .style("fill", "none")
-                    .style("stroke", "#000")
-                    .style("shape-rendering", "crispEdges");
-                let titleFromDate = new Date(getUrlParameter('fromDate')).toISOString().substring(0, 10);
-                let titleToDate = new Date(getUrlParameter('toDate')).toISOString().substring(0, 10);
-                let weekNum = getUrlParameter('weekNum');
-                let title = svg.append("g")
-                    .attr("class", "title");
-                title.append("text")
-                    .attr("x", (width/2))
-                    .attr("y", -60)
-                    .attr("text-anchor", "middle")
-                    .style("font", "20px sans-serif")
-                    .text("Week " + weekNum + " (" + titleFromDate + " to " + titleToDate + ") " + (comparison == 'percent' ? 'percent ' : '') + "gain/loss " + (currency == 'BTC' ? 'vs. BTC in USD' : 'in USD'));
-                
-                var movesize = width/2 - startp.node().getBBox().width/2;
-                d3.selectAll(".legendbox").attr("transform", "translate(" + movesize  + ",0)");
+                    var bars = vakken.selectAll("rect")
+                        .data(function(d) { 
+                            return d.boxes; 
+                        })
+                        .enter().append("g").attr("class", "subbar");
+
+                    bars.append("rect")
+                        .attr("height", y.rangeBand()+2)
+                        .attr("x", function(d) { return x(d.x0); })
+                        .attr("width", function(d) { 
+                            return d.type == "Loss" ? x(0)-x(d.x0) : (x(d.x1)-x(d.x0));
+                        })
+                        .style("opacity", "0.2")
+                        .style("fill", function(d) { return color(d.type); });
+
+                    bars.append("text")
+                        .attr("x", function(d) { return x(d.x0); })
+                        .attr("y", y.rangeBand()/2)
+                        .attr("dy", "0.4em")
+                        .attr("dx", "0.8em")
+                        .style("font" ,"15px Open Sans")
+                        .style("fill", "#000")
+                        .style("text-anchor", "begin")
+                        .text(function(d) { 
+                            return (d.position + (comparison == 'percent' ? ' %' : '')); 
+                        });
+
+                    vakken.insert("rect",":first-child")
+                        .attr("height", y.rangeBand()+2)
+                        .attr("x", "1")
+                        .attr("width", width)
+                        .attr("fill-opacity", "0.4")
+                        .style("fill", "#F5F5F5")
+                        .attr("class", function(d,index) { return index%2==0 ? "even" : "uneven"; });
+
+                    svg.append("g")
+                        .attr("class", "y axis")
+                        .append("line")
+                        .attr("x1", x(0))
+                        .attr("x2", x(0))
+                        .attr("y2", height);
+
+                    var startp = svg.append("g").attr("class", "legendbox").attr("id", "mylegendbox");
+                    // this is not nice, we should calculate the bounding box and use that
+                    var legend_tabs = [0, 120, 200, 375, 450];
+                    var legend = startp.selectAll(".legend")
+                        .data(color.domain().slice())
+                        .enter().append("g")
+                        .attr("class", "legend")
+                        .attr("transform", function(d, i) { return "translate(" + legend_tabs[i] + ",-45)"; });
+
+                    legend.append("rect")
+                        .attr("x", 0)
+                        .attr("width", 18)
+                        .attr("height", 18)
+                        .style("fill", color);
+
+                    legend.append("text")
+                        .attr("x", 22)
+                        .attr("y", 9)
+                        .attr("dy", ".35em")
+                        .style("text-anchor", "begin")
+                        .style("font" ,"bold 15px Open Sans")
+                        .text(function(d) { return (comparison == 'percent' ? '% ' : "USD ") + d; });
+
+                    d3.selectAll(".axis path")
+                        .style("fill", "none")
+                        .style("stroke", "#000")
+                        .style("shape-rendering", "crispEdges");
+
+                    d3.selectAll(".axis line")
+                        .style("fill", "none")
+                        .style("stroke", "#000")
+                        .style("shape-rendering", "crispEdges");
+                    var titleFromDate = new Date(getUrlParameter('fromDate')).toISOString().substring(0, 10);
+                    var titleToDate = new Date(getUrlParameter('toDate')).toISOString().substring(0, 10);
+                    var weekNum = getUrlParameter('weekNum');
+                    var title = svg.append("g")
+                        .attr("class", "title");
+                    title.append("text")
+                        .attr("x", (width/2))
+                        .attr("y", -60)
+                        .attr("text-anchor", "middle")
+                        .style("font", "bolder 20px Open Sans")
+                        .text("Week " + weekNum + " (" + titleFromDate + " to " + titleToDate + ") " + (comparison == 'percent' ? 'percent ' : '') + "gain/loss " + (currency == 'BTC' ? 'vs. BTC in USD' : 'in USD'));
+                    
+                    var movesize = width/2 - startp.node().getBBox().width/2;
+                    d3.selectAll(".legendbox").attr("transform", "translate(" + movesize  + ",0)");
+                    document.getElementById('pageStatus').innerHTML = "loaded";
+                });
             });
-        });
-    }
-    function getUrlParameter(sParam) {
-        var sPageURL = decodeURIComponent(window.location.search.substring(1)),
-            sURLVariables = sPageURL.split('&'),
-            sParameterName,
-            i;
+        }
+        function getUrlParameter(sParam) {
+            var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                sURLVariables = sPageURL.split('&'),
+                sParameterName,
+                i;
 
-        for (i = 0; i < sURLVariables.length; i++) {
-            sParameterName = sURLVariables[i].split('=');
+            for (i = 0; i < sURLVariables.length; i++) {
+                sParameterName = sURLVariables[i].split('=');
 
-            if (sParameterName[0] === sParam) {
-                return sParameterName[1] === undefined ? true : sParameterName[1];
+                if (sParameterName[0] === sParam) {
+                    return sParameterName[1] === undefined ? true : sParameterName[1];
+                }
             }
         }
-    }
-</script>
+    </script>
 </body>
 </html>
