@@ -7,6 +7,7 @@
     <style>
     body {
         font: bold 14px 'Open Sans';
+        background-color: #fff;
     }
     path { 
         stroke: steelblue;
@@ -28,7 +29,6 @@
     </style>
 </head>
 <body>
-    <div id="pageStatus" style="display: none;">not loaded</div>
     <script>
         // Set the dimensions of the canvas / graph
         var margin = {top: 60, right: 40, bottom: 70, left: 50},
@@ -138,7 +138,9 @@
                 .attr("text-anchor", "middle")
                 .style("font", "bold 20px Open Sans")
                 .text("Cryptocurrency Balances Week " + weekNum + " (" + titleDate + ")");
-            document.getElementById('pageStatus').innerHTML = "loaded";
+            if (typeof window.callPhantom === 'function') {
+                setTimeout(function() { window.callPhantom(); }, 1000);
+            }
         });
         function getUrlParameter(sParam) {
             var sPageURL = decodeURIComponent(window.location.search.substring(1)),

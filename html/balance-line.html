@@ -5,9 +5,9 @@
 <style>
     body {
         font: bold 14px 'Open Sans';
+        background-color: #fff;
     }
 </style>
-
 </head>
 <body>
     <div id="pageStatus" style="display: none;">not loaded</div>
@@ -81,7 +81,9 @@
                 .attr("text-anchor", "middle")
                 .style("font", "bold 20px Open Sans")
                 .text("Portfolio Balance Week " + weekNum + " (" + titleDate + ")");
-            document.getElementById('pageStatus').innerHTML = "loaded";
+            if (typeof window.callPhantom === 'function') {
+                setTimeout(function() { window.callPhantom(); }, 1000);
+            }
         });
 
         function getUrlParameter(sParam) {

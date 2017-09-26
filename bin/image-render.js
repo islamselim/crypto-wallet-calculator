@@ -1,5 +1,4 @@
 var fs = require('fs');
-var args = require('system').args;
 
 var weeks = {
     "2017-09-24": 6,
@@ -12,11 +11,11 @@ var weeks = {
 var baseUrl = 'http://blog.mclain.ca:8080';
 var curDate = new Date();
 curDate.setDate(curDate.getDate() - curDate.getDay());
-var week = weeks[curDate.toISOString().substring(0, 10)];
 var fromDate = new Date();
 fromDate.setDate(curDate.getDate() - 7);
 fromDate = fromDate.toISOString().substring(0, 10);
 curDate = curDate.toISOString().substring(0, 10);
+var week = weeks[curDate];
 var imageDestinationPath = 'data/images/week' + week + '/';
 fs.makeDirectory(imageDestinationPath);
 console.log("Week: " + week + ". Current Date: " + curDate + ". Previous week: " + fromDate);
@@ -71,41 +70,14 @@ for (var i = 0; i < metaInfo.length; i++) {
 }
 function openPage(info) {
     var page = require('webpage').create(); 
-    page.viewportSize = { width: info.width, height: info.height };
-    page.onConsoleMessage = function(msg, lineNum, sourceId) {
-        console.log('CONSOLE: ' + msg + ' (from line #' + lineNum + ' in "' + sourceId + '")');
+    page.onCallback = function(data) {
+        console.log(info.jobName + " page rendered.");
+        page.render(imageDestinationPath + info.filename); 
+        queue.pop();
     };
-    page.onError = function(msg, trace) {
-        console.log(msg);
-        trace.forEach(function(item) {
-            console.log(' ', item.file, ':', item.line);
-        });
-    };
-    page.open(info.url, function(status) {
-        console.log(info.jobName + " page load status: " + status);
-        if (status === "success") {
-            var counter = 0;
-            var interval = setInterval(function(){
-                var ps = page.evaluate(function() {
-                    document.body.bgColor = 'white';
-                    return document.getElementById("pageStatus").innerHTML;
-                });
-                console.log(info.jobName + " waiting...");
-                if (ps == "loaded" || counter > 6) {
-                    console.log(info.jobName + " page loaded.");
-                    isLoaded = true;
-                    page.render(imageDestinationPath + info.filename); 
-                    console.log(info.jobName + " rendered.");
-                    clearInterval(interval);
-                    queue.pop();
-                    //phantom.exit();
-                } else {
-                    counter++;
-                }
-            }, 500);
-        }
-    });
+    page.open(info.url);
 }
+//Wait until all jobs are done.
 setInterval(function() {
     if (queue.length == 0) {
         phantom.exit();
