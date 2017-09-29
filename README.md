@@ -46,6 +46,10 @@ Run the following:
 Open a browser and go to one of the following addresses to view that specific chart:
 
 http://127.0.0.1:8080/html/barchart.html?date=2017-09-24&weekNum=6
+
 http://127.0.0.1:8080/html/currency-lines.html?date=2017-09-24&weekNum=7
+
 http://127.0.0.1:8080/html/balance-line.html?date=2017-09-24&weekNum=6
+
 http://127.0.0.1:8080/html/diverge.html?fromDate=2017-09-17&toDate=2017-09-24&weekNum=6
+
