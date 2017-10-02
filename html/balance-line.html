@@ -13,7 +13,12 @@
     <div id="pageStatus" style="display: none;">not loaded</div>
     <svg width="960" height="600"></svg>
     <script type="text/javascript">
-        var svg = d3.select("svg"),
+    Date.prototype.addDays = function(days) {
+        var dat = new Date(this.valueOf());
+        dat.setDate(dat.getDate() + days);
+        return dat;
+    } 
+    var svg = d3.select("svg"),
             margin = {top: 50, right: 40, bottom: 30, left: 50},
             width = +svg.attr("width") - margin.left - margin.right,
             height = +svg.attr("height") - margin.top - margin.bottom,
@@ -31,7 +36,8 @@
             .x(function(d) { return x(new Date(d.date)); })
             .y(function(d) { return y(d.balance); });
 
-        var curDate = getUrlParameter('date').replace(/-/g, '');
+        var curDateUnformatted = getUrlParameter('date');
+        var curDate = curDateUnformatted.replace(/-/g, '');
         d3.json("../data/balances/" + curDate + "-balance.json", function(error, data) {
             if (error) throw error;
 
@@ -84,6 +90,22 @@
             if (typeof window.callPhantom === 'function') {
                 setTimeout(function() { window.callPhantom(); }, 1000);
             }
+            svg.append("line")
+                .style("stroke", "black")  
+                .attr("x1", x(new Date("2017-08-20"))) 
+                .attr("y1", y(282)) 
+                .attr("x2", x(new Date(curDateUnformatted).addDays(3)))
+                .attr("y2", y(282));
+            g.append("g")
+                .style("font", "bold 14px Open Sans")
+                .call(yAxis)
+                .append("text")
+                .attr("fill", "#000")
+                .attr("y", y(305))
+                .attr("x", x(new Date(curDateUnformatted).addDays(-2)))
+                .attr("dy", "0.99em")
+                .attr("text-anchor", "end")
+                .text("Starting Balance");
         });
 
         function getUrlParameter(sParam) {
