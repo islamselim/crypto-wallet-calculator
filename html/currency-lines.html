@@ -136,8 +136,8 @@
                 .attr("x", (width/2))
                 .attr("y", -40)
                 .attr("text-anchor", "middle")
-                .style("font", "bold 20px Open Sans")
-                .text("Cryptocurrency Balances Week " + weekNum + " (" + titleDate + ")");
+                .style("font", "20px Open Sans")
+                .text("Balances as of Week " + weekNum + " (" + titleDate + ")");
             if (typeof window.callPhantom === 'function') {
                 setTimeout(function() { window.callPhantom(); }, 1000);
             }

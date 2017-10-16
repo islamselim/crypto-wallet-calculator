@@ -229,7 +229,7 @@
                         .attr("x", (width/2))
                         .attr("y", -60)
                         .attr("text-anchor", "middle")
-                        .style("font", "bolder 20px Open Sans")
+                        .style("font", "20px Open Sans")
                         .text("Week " + weekNum + " (" + titleFromDate + " to " + titleToDate + ") " + (comparison == 'percent' ? 'percent ' : '') + "gain/loss " + (currency == 'BTC' ? 'vs. BTC in USD' : 'in USD'));
                     
                     var movesize = width/2 - startp.node().getBBox().width/2;
