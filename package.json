@@ -7,9 +7,12 @@
     "crypto-wallet-calculator": "calculate.js"
   },
   "dependencies": {
+    "connect": "^3.6.5",
     "cryptocompare": "^0.1.0",
     "fetch": "^1.1.0",
-    "node-fetch": "^1.7.2"
+    "node-fetch": "^1.7.2",
+    "phantomjs": "^2.1.7",
+    "serve-static": "^1.13.1"
   },
   "devDependencies": {},
   "scripts": {},
