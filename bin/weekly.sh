@@ -1,4 +1,4 @@
 #!/bin/bash
-
-cd /home/ubuntu/crypto-wallet-calculator
+cd "$(dirname "$0")"
+cd ..
 node phantomjs-server.js >> weekly.log
