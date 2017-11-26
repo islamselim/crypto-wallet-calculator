@@ -1,3 +1,8 @@
+/**
+ * @author  Brett McLain
+ * @summary Navigates to each HTML chart in the project and passes meta data in via the URL to render charts that have relevant dates/meta info. Uses phantomjs to render and image capture each chart in order to save and preserve it.
+ * @usage   
+*/
 var fs = require('fs');
 
 var weeks = {
@@ -10,7 +15,12 @@ var weeks = {
     "2017-11-05": 12,
     "2017-11-12": 13,
     "2017-11-19": 14,
-    "2017-11-26": 15
+    "2017-11-26": 16,
+    "2017-12-03": 17,
+    "2017-12-10": 18,
+    "2017-12-17": 19,
+    "2017-12-24": 20,
+    "2017-12-31": 21
 };
 var baseUrl = 'http://blog.mclain.ca:8080';
 var curDate = new Date();

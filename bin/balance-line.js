@@ -1,6 +1,7 @@
-/* Author:      Brett McLain
- * Description: Used to traverse each day's JSON file and calculate the balance of each day. 
- * Usage:       node balance-line.js 2017-08-20 
+/**
+ * @author  Brett McLain
+ * @summary Used to traverse each day's currency positions JSON file and calculate the balance for each day. 
+ * @usage   node balance-line.js 2017-08-20 
 */
 global.fetch = require('../node_modules/node-fetch');
 const cc = require('../node_modules/cryptocompare');

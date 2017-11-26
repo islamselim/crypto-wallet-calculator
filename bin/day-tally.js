@@ -1,7 +1,6 @@
 /**
  * @author  Brett McLain
- * @summary Used to calculate the total value of a wallet for a specific 
- * day given JSON input of total input and output costs.
+ * @summary Used to calculate the total value of a wallet for a specific day given JSON input of total input and output costs.
  */
 global.fetch = require('../node_modules/node-fetch');
 const cc = require('../node_modules/cryptocompare');

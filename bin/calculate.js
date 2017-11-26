@@ -1,3 +1,8 @@
+/**
+ * @author  Brett McLain
+ * @summary Reads in currency balances from a JSON file (specified in argv[2]), gets the prices of those currencies, and outputs a JSON file containng the price, balance, and total position of each currency. 
+ * @usage   node calculate.js 2017-08-20 
+*/
 global.fetch = require('../node_modules/node-fetch');
 const cc = require('../node_modules/cryptocompare');
 const fs = require('fs');

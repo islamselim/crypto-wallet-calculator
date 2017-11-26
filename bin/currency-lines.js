@@ -1,6 +1,7 @@
 /**
  * @author  Brett McLain
  * @summary Generates line chart data for multiple currencies from epoch date until today.
+ * @usage   node currency-lines.js 2017-08-20 
  */
 global.fetch = require('node-fetch');
 const cc = require('cryptocompare');
