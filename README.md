@@ -31,6 +31,14 @@ This script reads from a JSON file that must contain crypto currency symbols (BT
 
 Add the nightly.sh and weekly.sh scripts to your systems cron to grab data on a daily basis and generate charts and graphs on a weekly basis.
 
+## Getting Started
+
+Run the following in the project root:
+
+    npm install
+
+This will install all necessary dependencies.
+
 ## Generate Chart Images
 
 The chart images are generated via PhantomJS. The phantomjs-server.js file is actually a node script that spins up a tiny web server to serve the html files and then fires off a phantomjs child process that runs bin/image-render.js. The image-render.js script captures an image of each chart. You can run this process with the following command:
