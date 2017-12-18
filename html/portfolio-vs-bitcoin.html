@@ -63,7 +63,7 @@
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
         var curDateUnformatted = getUrlParameter('date');
         var curDate = curDateUnformatted.replace(/-/g, '');
-        d3.json('../data/balances/' + curDate + '-balance.json', function (error, data) {
+        d3.json('../data/balances/' + curDate + '-balance-vs-btc.json', function (error, data) {
             data.forEach(function(d) {
                 d.date = new Date(d.date);
                 d.balance = +d.balance;
