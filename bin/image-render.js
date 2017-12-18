@@ -15,12 +15,12 @@ var weeks = {
     "2017-11-05": 12,
     "2017-11-12": 13,
     "2017-11-19": 14,
-    "2017-11-26": 16,
-    "2017-12-03": 17,
-    "2017-12-10": 18,
-    "2017-12-17": 19,
-    "2017-12-24": 20,
-    "2017-12-31": 21
+    "2017-11-26": 15,
+    "2017-12-03": 16,
+    "2017-12-10": 17,
+    "2017-12-17": 18,
+    "2017-12-24": 19,
+    "2017-12-31": 20
 };
 var baseUrl = 'http://blog.mclain.ca:8080';
 var curDate = new Date();
@@ -38,6 +38,10 @@ var metaInfo = [
       filename: 'week' + week + '_balance.png',
       jobName: "Balance Chart"
     },
+    { url: baseUrl + '/html/portfolio-vs-bitcoin.html?date=' + curDate + '&weekNum=' + week,
+      filename: 'week' + week + '_portfolio_vs_bitcoin.png',
+      jobName: "Portfolio vs. Bitcoin Chart"
+    },
     { url: baseUrl + '/html/barchart.html?date=' + curDate + '&weekNum=' + week,
       filename: 'week' + week + '_positions.png',
       jobName: "Positions Chart"
@@ -50,6 +54,10 @@ var metaInfo = [
       filename: 'week' + week + '_usd.png',
       jobName: "Diverging USD"
     },
+    { url: baseUrl + '/html/diverge.html?fromDate=2017-08-20&toDate=' + curDate + '&weekNum=' + week + '&type=up',
+      filename: 'week' + week + '_usd_percent_inception.png',
+      jobName: "Diverging USD Percent since Inception"
+    },
     { url: baseUrl + '/html/diverge.html?fromDate=' + fromDate + '&toDate=' + curDate + '&weekNum=' + week + '&type=up',
       filename: 'week' + week + '_usd_percent.png',
       jobName: "Diverging USD Percent"
@@ -57,6 +65,10 @@ var metaInfo = [
     { url: baseUrl + '/html/diverge.html?fromDate=' + fromDate + '&toDate=' + curDate + '&weekNum=' + week + '&type=b',
       filename: 'week' + week + '_btc.png',
       jobName: "Diverging BTC"
+    },
+    { url: baseUrl + '/html/diverge.html?fromDate=2017-08-20&toDate=' + curDate + '&weekNum=' + week + '&type=b',
+      filename: 'week' + week + '_btc_inception.png',
+      jobName: "Diverging BTC since Inception"
     },
     { url: baseUrl + '/html/diverge.html?fromDate=' + fromDate + '&toDate=' + curDate + '&weekNum=' + week + '&type=bp',
       filename: 'week' + week + '_btc_percent.png',
@@ -72,6 +84,7 @@ function openPage(info) {
     var page = require('webpage').create(); 
     page.onCallback = function(data) {
         console.log(info.jobName + " page rendered.");
+        console.log(info.url);
         page.render(imageDestinationPath + info.filename); 
         queue.pop();
     };
